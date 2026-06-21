@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 
-export function LoginForm() {
+export default function LoginForm() {
   const router = useRouter()
   const supabase = createClient()
 
