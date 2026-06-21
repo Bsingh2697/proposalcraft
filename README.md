@@ -46,7 +46,7 @@ proposalcraft/
 ### 1. Clone and install
 
 ```bash
-git clone https://github.com/yourusername/proposalcraft.git
+git clone https://github.com/Bsingh2697/proposalcraft.git
 cd proposalcraft
 pnpm install
 ```
