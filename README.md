@@ -1,36 +1,99 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ProposalCraft
 
-## Getting Started
+AI-powered freelance proposal generator. Paste a job description → get a tailored, professional proposal in seconds.
 
-First, run the development server:
+## What it does
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+Freelancers on Upwork, Fiverr, and Toptal spend hours writing proposals. ProposalCraft uses Claude AI to generate high-quality, personalized proposals in under 10 seconds.
+
+## Revenue model
+
+| Plan | Price | Limit |
+|------|-------|-------|
+| Free | $0 | 3 proposals/month |
+| Pro | $9/month | Unlimited proposals |
+
+## Tech stack
+
+| Layer | Technology |
+|-------|-----------|
+| Framework | Next.js 14 (App Router + TypeScript) |
+| Auth + Database | Supabase (Postgres + RLS) |
+| Payments | Stripe (Checkout + Webhooks) |
+| AI | Claude API (Anthropic) |
+| Styling | Tailwind CSS + shadcn/ui |
+| Email | Resend |
+| Hosting | Vercel |
+
+## Project structure
+
+```
+proposalcraft/
+├── app/                     # Next.js App Router pages and API routes
+│   ├── (auth)/              # Login and signup pages (public)
+│   ├── (app)/               # Protected pages (requires login)
+│   ├── api/                 # Server-side API routes (secrets live here)
+│   └── pricing/             # Public pricing page
+├── components/              # Reusable React components
+│   └── ui/                  # shadcn/ui base components
+├── lib/                     # Shared utility modules
+│   └── supabase/            # Supabase client factories
+└── middleware.ts             # Route protection (redirects unauthenticated users)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Getting started
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 1. Clone and install
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+git clone https://github.com/yourusername/proposalcraft.git
+cd proposalcraft
+pnpm install
+```
 
-## Learn More
+### 2. Set up environment variables
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+cp .env.local.example .env.local
+# Fill in all values — see .env.local.example for descriptions
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 3. Set up Supabase
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Create a project at [supabase.com](https://supabase.com)
+- Run the SQL in `lib/supabase/schema.sql` in the Supabase SQL editor
+- Enable Google OAuth under Authentication → Providers
 
-## Deploy on Vercel
+### 4. Set up Stripe
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Create a product "ProposalCraft Pro" at $9/month in the Stripe dashboard
+- Copy the Price ID to `NEXT_PUBLIC_STRIPE_PRO_PRICE_ID`
+- For local webhook testing: `stripe listen --forward-to localhost:3000/api/stripe/webhook`
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### 5. Run locally
+
+```bash
+pnpm dev
+```
+
+Open [http://localhost:3000](http://localhost:3000)
+
+## Deployment
+
+```bash
+vercel --prod
+```
+
+Set all environment variables from `.env.local.example` in the Vercel dashboard.
+Add the Stripe webhook endpoint: `https://yourdomain.com/api/stripe/webhook`
+
+## Cost estimate (Month 1, 0 paying users)
+
+| Service | Cost |
+|---------|------|
+| Vercel | $0 (free tier) |
+| Supabase | $0 (free tier) |
+| Claude API (haiku) | ~$0.01 per 100 proposals |
+| Stripe | 2.9% + 30¢ per transaction only |
+| Domain | ~$12/year |
+| **Total fixed** | **~$1/month** |
