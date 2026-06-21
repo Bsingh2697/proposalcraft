@@ -1,6 +1,11 @@
 import Anthropic from '@anthropic-ai/sdk'
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+let _client: Anthropic | null = null
+
+function getClient(): Anthropic {
+  if (!_client) _client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  return _client
+}
 
 // Free users get haiku (fast, cheap ~$0.001/proposal).
 // Pro users get sonnet (higher quality output).
@@ -34,7 +39,7 @@ export async function generateProposal({
   tone,
   plan,
 }: GenerateProposalParams): Promise<string> {
-  const message = await client.messages.create({
+  const message = await getClient().messages.create({
     model: MODELS[plan],
     max_tokens: 500,
     system: SYSTEM_PROMPT,

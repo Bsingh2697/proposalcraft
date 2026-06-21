@@ -1,11 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { stripe } from '@/lib/stripe'
+import { getStripe } from '@/lib/stripe'
 import { createClient } from '@/lib/supabase/server'
 import Stripe from 'stripe'
-
-// Stripe requires the raw body bytes to verify the signature.
-// Next.js parses the body by default, so we disable that here.
-export const config = { api: { bodyParser: false } }
 
 export async function POST(req: NextRequest) {
   const body = await req.text()
@@ -18,7 +14,7 @@ export async function POST(req: NextRequest) {
   // 1. Verify the request actually came from Stripe
   let event: Stripe.Event
   try {
-    event = stripe.webhooks.constructEvent(
+    event = getStripe().webhooks.constructEvent(
       body,
       signature,
       process.env.STRIPE_WEBHOOK_SECRET!
@@ -32,7 +28,7 @@ export async function POST(req: NextRequest) {
   // 2. Handle the events we care about
   switch (event.type) {
     case 'checkout.session.completed': {
-      const session = event.data.object as Stripe.CheckoutSession
+      const session = event.data.object as Stripe.Checkout.Session
       const userId = session.client_reference_id
 
       if (userId && session.subscription) {
