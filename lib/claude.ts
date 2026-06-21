@@ -1,18 +1,15 @@
-import Anthropic from '@anthropic-ai/sdk'
+import Groq from 'groq-sdk'
 
-let _client: Anthropic | null = null
+let _client: Groq | null = null
 
-function getClient(): Anthropic {
-  if (!_client) _client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+function getClient(): Groq {
+  if (!_client) _client = new Groq({ apiKey: process.env.GROQ_API_KEY })
   return _client
 }
 
-// Free users get haiku (fast, cheap ~$0.001/proposal).
-// Pro users get sonnet (higher quality output).
-const MODELS = {
-  free: 'claude-haiku-4-5',
-  pro: 'claude-sonnet-4-6',
-} as const
+// Both tiers use llama-3.3-70b — fast, free, and high quality for writing tasks.
+// Swap to a larger model for pro users once on a paid Groq plan if needed.
+const MODEL = 'llama-3.3-70b-versatile'
 
 const SYSTEM_PROMPT = `You are an expert freelance proposal writer with 10+ years of experience winning contracts on Upwork, Fiverr, and Toptal.
 
@@ -37,13 +34,12 @@ export async function generateProposal({
   jobDescription,
   skills,
   tone,
-  plan,
 }: GenerateProposalParams): Promise<string> {
-  const message = await getClient().messages.create({
-    model: MODELS[plan],
+  const completion = await getClient().chat.completions.create({
+    model: MODEL,
     max_tokens: 500,
-    system: SYSTEM_PROMPT,
     messages: [
+      { role: 'system', content: SYSTEM_PROMPT },
       {
         role: 'user',
         content: `Job description:\n${jobDescription}\n\nMy skills: ${skills}\n\nTone: ${tone}`,
@@ -51,7 +47,7 @@ export async function generateProposal({
     ],
   })
 
-  const block = message.content[0]
-  if (block.type !== 'text') throw new Error('Unexpected response type from Claude')
-  return block.text
+  const text = completion.choices[0]?.message?.content
+  if (!text) throw new Error('No response from Groq')
+  return text
 }
