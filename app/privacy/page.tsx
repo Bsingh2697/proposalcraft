@@ -1,23 +1,69 @@
+import Link from 'next/link'
+
 export default function PrivacyPage() {
   return (
-    <div className="max-w-2xl mx-auto px-4 py-16 prose">
-      <h1>Privacy Policy</h1>
-      <p><em>Last updated: June 2026</em></p>
+    <div className="min-h-screen bg-background">
+      <nav className="border-b px-6 py-3 flex items-center justify-between">
+        <Link href="/" className="font-semibold text-lg">ProposalCraft</Link>
+      </nav>
 
-      <h2>What we collect</h2>
-      <p>We collect your email address when you sign up, and the job descriptions you paste to generate proposals. We do not sell your data.</p>
+      <main className="max-w-2xl mx-auto px-6 py-16">
+        <div className="mb-10">
+          <h1 className="text-3xl font-bold tracking-tight mb-2">Privacy Policy</h1>
+          <p className="text-sm text-muted-foreground">Last updated: June 2026</p>
+        </div>
 
-      <h2>How we use it</h2>
-      <p>Your email is used to identify your account. Job descriptions are sent to an AI model to generate proposals and are not stored beyond your proposal history.</p>
+        <div className="space-y-8">
+          <section>
+            <h2 className="text-lg font-semibold mb-2">What we collect</h2>
+            <p className="text-muted-foreground leading-relaxed">
+              We collect your email address when you sign up, and the job descriptions you paste to generate proposals. We do not sell your data to any third parties.
+            </p>
+          </section>
 
-      <h2>Third-party services</h2>
-      <p>We use Supabase (database and auth), Groq (AI generation), and Lemon Squeezy (payments). Each has their own privacy policy.</p>
+          <section>
+            <h2 className="text-lg font-semibold mb-2">How we use it</h2>
+            <p className="text-muted-foreground leading-relaxed">
+              Your email is used solely to identify your account. Job descriptions are sent to an AI model to generate proposals and are stored only as part of your proposal history, which you can view in your dashboard.
+            </p>
+          </section>
 
-      <h2>Data deletion</h2>
-      <p>To delete your account and all data, email us at singh2697.bs@gmail.com.</p>
+          <section>
+            <h2 className="text-lg font-semibold mb-2">Third-party services</h2>
+            <p className="text-muted-foreground leading-relaxed">
+              We use Supabase for database and authentication, Groq for AI generation, and Lemon Squeezy for payment processing. Each service has its own privacy policy governing their data use.
+            </p>
+          </section>
 
-      <h2>Contact</h2>
-      <p>singh2697.bs@gmail.com</p>
+          <section>
+            <h2 className="text-lg font-semibold mb-2">Cookies</h2>
+            <p className="text-muted-foreground leading-relaxed">
+              We use session cookies to keep you logged in. We do not use tracking or advertising cookies.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-lg font-semibold mb-2">Data deletion</h2>
+            <p className="text-muted-foreground leading-relaxed">
+              To delete your account and all associated data, email us at{' '}
+              <a href="mailto:singh2697.bs@gmail.com" className="underline">
+                singh2697.bs@gmail.com
+              </a>
+              . We will process your request within 7 days.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-lg font-semibold mb-2">Contact</h2>
+            <p className="text-muted-foreground leading-relaxed">
+              Questions about this policy?{' '}
+              <a href="mailto:singh2697.bs@gmail.com" className="underline">
+                singh2697.bs@gmail.com
+              </a>
+            </p>
+          </section>
+        </div>
+      </main>
     </div>
   )
 }
