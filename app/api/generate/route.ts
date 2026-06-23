@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { generateProposal } from '@/lib/claude'
-import { getUsageStatus, incrementUsage } from '@/lib/usage'
+import { getUsageStatus } from '@/lib/usage'
 
 export async function POST(req: NextRequest) {
   const supabase = await createClient()
@@ -38,17 +38,14 @@ export async function POST(req: NextRequest) {
     plan: usageStatus.plan,
   })
 
-  // 5. Save to database and increment usage counter in parallel
-  await Promise.all([
-    supabase.from('proposals').insert({
-      user_id: user.id,
-      job_description: jobDescription.trim(),
-      skills: skills?.trim() ?? '',
-      tone: tone ?? 'professional',
-      output: proposal,
-    }),
-    incrementUsage(user.id),
-  ])
+  // 5. Save to database — usage count is derived from this table, no separate counter needed
+  await supabase.from('proposals').insert({
+    user_id: user.id,
+    job_description: jobDescription.trim(),
+    skills: skills?.trim() ?? '',
+    tone: tone ?? 'professional',
+    output: proposal,
+  })
 
   revalidatePath('/generate')
   return NextResponse.json({ proposal })
