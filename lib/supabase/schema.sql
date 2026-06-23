@@ -103,8 +103,10 @@ LANGUAGE plpgsql
 SECURITY DEFINER SET search_path = public
 AS $$
 BEGIN
-  UPDATE public.usage
-  SET proposals_this_month = proposals_this_month + 1
-  WHERE user_id = p_user_id;
+  -- UPSERT: creates the row if missing, increments if it exists
+  INSERT INTO public.usage (user_id, proposals_this_month)
+  VALUES (p_user_id, 1)
+  ON CONFLICT (user_id) DO UPDATE
+  SET proposals_this_month = usage.proposals_this_month + 1;
 END;
 $$;

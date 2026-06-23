@@ -38,7 +38,7 @@ export default function LoginForm() {
   async function handleGoogleLogin() {
     await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: `${window.location.origin}/generate` },
+      options: { redirectTo: `${window.location.origin}/auth/callback` },
     })
   }
 

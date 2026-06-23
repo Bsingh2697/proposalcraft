@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { generateProposal } from '@/lib/claude'
 import { getUsageStatus, incrementUsage } from '@/lib/usage'
@@ -49,5 +50,6 @@ export async function POST(req: NextRequest) {
     incrementUsage(user.id),
   ])
 
+  revalidatePath('/generate')
   return NextResponse.json({ proposal })
 }

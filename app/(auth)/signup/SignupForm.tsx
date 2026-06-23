@@ -40,7 +40,7 @@ export default function SignupForm() {
   async function handleGoogleSignup() {
     await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: `${window.location.origin}/generate` },
+      options: { redirectTo: `${window.location.origin}/auth/callback` },
     })
   }
 

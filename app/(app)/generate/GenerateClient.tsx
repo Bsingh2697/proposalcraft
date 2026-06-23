@@ -11,12 +11,18 @@ interface GenerateClientProps {
   usageStatus: UsageStatus
 }
 
-export function GenerateClient({ usageStatus }: GenerateClientProps) {
+export function GenerateClient({ usageStatus: initialUsageStatus }: GenerateClientProps) {
   const router = useRouter()
   const [proposal, setProposal] = useState<string | null>(null)
+  const [usage, setUsage] = useState(initialUsageStatus)
 
   function handleResult(text: string) {
     setProposal(text)
+    setUsage((prev) => ({
+      ...prev,
+      used: prev.used + 1,
+      canGenerate: prev.used + 1 < prev.limit,
+    }))
   }
 
   function handleReset() {
@@ -37,10 +43,10 @@ export function GenerateClient({ usageStatus }: GenerateClientProps) {
             Paste a job posting and get a tailored proposal in seconds.
           </p>
         </div>
-        <UsageBadge used={usageStatus.used} plan={usageStatus.plan} />
+        <UsageBadge used={usage.used} plan={usage.plan} />
       </div>
 
-      {!usageStatus.canGenerate && (
+      {!usage.canGenerate && (
         <div className="rounded-md border border-destructive/50 bg-destructive/10 p-4 text-sm text-destructive">
           You&apos;ve used all 3 free proposals this month.{' '}
           <button onClick={handleUpgradeClick} className="underline font-medium">
@@ -55,7 +61,7 @@ export function GenerateClient({ usageStatus }: GenerateClientProps) {
       ) : (
         <ProposalForm
           onResult={handleResult}
-          canGenerate={usageStatus.canGenerate}
+          canGenerate={usage.canGenerate}
           onUpgradeClick={handleUpgradeClick}
         />
       )}

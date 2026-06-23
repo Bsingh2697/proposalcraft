@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { getUsageStatus } from '@/lib/usage'
 import { GenerateClient } from './GenerateClient'
+import { LogoutButton } from '@/components/LogoutButton'
 
 export default async function GeneratePage() {
   const supabase = await createClient()
@@ -21,6 +22,7 @@ export default async function GeneratePage() {
             History
           </Link>
           <span className="text-sm text-muted-foreground">{user.email}</span>
+          <LogoutButton />
         </div>
       </nav>
 

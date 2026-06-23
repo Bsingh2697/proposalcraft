@@ -53,7 +53,8 @@ export async function getUsageStatus(userId: string): Promise<UsageStatus> {
 
 export async function incrementUsage(userId: string): Promise<void> {
   const supabase = await createClient()
-  await supabase.rpc('increment_usage', { p_user_id: userId })
+  const { error } = await supabase.rpc('increment_usage', { p_user_id: userId })
+  if (error) throw error
 }
 
 function getNextMonthStart(): string {

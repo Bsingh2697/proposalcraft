@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { UsageBadge } from '@/components/UsageBadge'
+import { LogoutButton } from '@/components/LogoutButton'
 
 export default async function DashboardPage({
   searchParams,
@@ -36,6 +37,7 @@ export default async function DashboardPage({
             Generate
           </Link>
           <span className="text-sm text-muted-foreground">{user.email}</span>
+          <LogoutButton />
         </div>
       </nav>
 
