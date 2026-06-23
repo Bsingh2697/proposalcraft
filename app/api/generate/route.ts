@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { generateProposal } from '@/lib/claude'
 import { getUsageStatus } from '@/lib/usage'
 
@@ -38,14 +39,19 @@ export async function POST(req: NextRequest) {
     plan: usageStatus.plan,
   })
 
-  // 5. Save to database — usage count is derived from this table, no separate counter needed
-  await supabase.from('proposals').insert({
+  // 5. Save to database using admin client — bypasses RLS, guarantees the insert succeeds
+  const admin = createAdminClient()
+  const { error: insertError } = await admin.from('proposals').insert({
     user_id: user.id,
     job_description: jobDescription.trim(),
     skills: skills?.trim() ?? '',
     tone: tone ?? 'professional',
     output: proposal,
   })
+  if (insertError) {
+    console.error('Failed to save proposal:', insertError)
+    return NextResponse.json({ error: 'Failed to save proposal. Please try again.' }, { status: 500 })
+  }
 
   revalidatePath('/generate')
   return NextResponse.json({ proposal })
