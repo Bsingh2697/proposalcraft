@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 const FREE_LIMIT = 3
 
@@ -10,7 +10,7 @@ export interface UsageStatus {
 }
 
 export async function getUsageStatus(userId: string): Promise<UsageStatus> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   // Fetch user plan and usage in parallel
   const [profileResult, usageResult] = await Promise.all([
@@ -52,7 +52,7 @@ export async function getUsageStatus(userId: string): Promise<UsageStatus> {
 }
 
 export async function incrementUsage(userId: string): Promise<void> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const { error } = await supabase.rpc('increment_usage', { p_user_id: userId })
   if (error) throw error
 }
