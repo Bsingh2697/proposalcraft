@@ -2,11 +2,11 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { getUsageStatus } from '@/lib/usage'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { UsageBadge } from '@/components/UsageBadge'
 import { LogoutButton } from '@/components/LogoutButton'
+import { ProposalList } from './ProposalList'
 
 export default async function DashboardPage({
   searchParams,
@@ -21,7 +21,7 @@ export default async function DashboardPage({
   const [{ data: proposals }, usageStatus, params] = await Promise.all([
     supabase
       .from('proposals')
-      .select('id, job_description, tone, created_at')
+      .select('id, job_description, tone, output, created_at')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false }),
     getUsageStatus(user.id),
@@ -75,32 +75,7 @@ export default async function DashboardPage({
             </CardContent>
           </Card>
         ) : (
-          <div className="space-y-3">
-            {proposals.map((p) => (
-              <Card key={p.id}>
-                <CardHeader className="pb-2">
-                  <div className="flex items-start justify-between gap-2">
-                    <CardTitle className="text-sm font-medium line-clamp-2">
-                      {p.job_description.slice(0, 120)}
-                      {p.job_description.length > 120 ? '...' : ''}
-                    </CardTitle>
-                    <Badge variant="outline" className="shrink-0 capitalize">
-                      {p.tone}
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <p className="text-xs text-muted-foreground">
-                    {new Date(p.created_at).toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: 'numeric',
-                      year: 'numeric',
-                    })}
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          <ProposalList proposals={proposals} />
         )}
       </main>
     </div>
