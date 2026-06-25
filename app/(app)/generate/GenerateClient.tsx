@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ProposalForm } from '@/components/ProposalForm'
+import type { FormInputs } from '@/components/ProposalForm'
 import { ProposalOutput } from '@/components/ProposalOutput'
 import { UsageBadge } from '@/components/UsageBadge'
 import type { UsageStatus } from '@/lib/usage'
@@ -15,9 +16,10 @@ export function GenerateClient({ usageStatus: initialUsageStatus }: GenerateClie
   const router = useRouter()
   const [proposal, setProposal] = useState<string | null>(null)
   const [usage, setUsage] = useState(initialUsageStatus)
+  const [lastInputs, setLastInputs] = useState<FormInputs | null>(null)
+  const [regenerating, setRegenerating] = useState(false)
 
-  function handleResult(text: string) {
-    setProposal(text)
+  function incrementUsageDisplay() {
     setUsage((prev) => ({
       ...prev,
       used: prev.used + 1,
@@ -25,8 +27,34 @@ export function GenerateClient({ usageStatus: initialUsageStatus }: GenerateClie
     }))
   }
 
+  function handleResult(text: string, inputs: FormInputs) {
+    setProposal(text)
+    setLastInputs(inputs)
+    incrementUsageDisplay()
+  }
+
+  async function handleRegenerate() {
+    if (!lastInputs || regenerating) return
+    setRegenerating(true)
+    try {
+      const res = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(lastInputs),
+      })
+      const data = await res.json()
+      if (res.ok) {
+        setProposal(data.proposal)
+        incrementUsageDisplay()
+      }
+    } finally {
+      setRegenerating(false)
+    }
+  }
+
   function handleReset() {
     setProposal(null)
+    setLastInputs(null)
     router.refresh()
   }
 
@@ -57,7 +85,12 @@ export function GenerateClient({ usageStatus: initialUsageStatus }: GenerateClie
       )}
 
       {proposal ? (
-        <ProposalOutput proposal={proposal} onReset={handleReset} />
+        <ProposalOutput
+          proposal={proposal}
+          onReset={handleReset}
+          onRegenerate={handleRegenerate}
+          regenerating={regenerating}
+        />
       ) : (
         <ProposalForm
           onResult={handleResult}

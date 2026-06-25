@@ -1,18 +1,17 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { NextRequest } from 'next/server'
 
-// Mock all external dependencies
 vi.mock('@/lib/supabase/server', () => ({ createClient: vi.fn() }))
+vi.mock('@/lib/supabase/admin', () => ({ createAdminClient: vi.fn() }))
 vi.mock('@/lib/claude', () => ({ generateProposal: vi.fn() }))
-vi.mock('@/lib/usage', () => ({
-  getUsageStatus: vi.fn(),
-  incrementUsage: vi.fn(),
-}))
+vi.mock('@/lib/usage', () => ({ getUsageStatus: vi.fn() }))
+vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }))
 
 import { POST } from '@/app/api/generate/route'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { generateProposal } from '@/lib/claude'
-import { getUsageStatus, incrementUsage } from '@/lib/usage'
+import { getUsageStatus } from '@/lib/usage'
 
 function makeRequest(body: object) {
   return new NextRequest('http://localhost:3000/api/generate', {
@@ -22,7 +21,7 @@ function makeRequest(body: object) {
   })
 }
 
-function makeSupabase(user: object | null, insertError: null | object = null) {
+function makeSupabase(user: object | null) {
   return {
     auth: {
       getUser: vi.fn().mockResolvedValue({
@@ -30,6 +29,11 @@ function makeSupabase(user: object | null, insertError: null | object = null) {
         error: user ? null : { message: 'Not authenticated' },
       }),
     },
+  }
+}
+
+function makeAdminClient(insertError: null | object = null) {
+  return {
     from: vi.fn().mockReturnValue({
       insert: vi.fn().mockResolvedValue({ error: insertError }),
     }),
@@ -38,7 +42,7 @@ function makeSupabase(user: object | null, insertError: null | object = null) {
 
 beforeEach(() => {
   vi.clearAllMocks()
-  vi.mocked(incrementUsage).mockResolvedValue(undefined)
+  vi.mocked(createAdminClient).mockReturnValue(makeAdminClient() as never)
 })
 
 describe('POST /api/generate', () => {
@@ -57,10 +61,7 @@ describe('POST /api/generate', () => {
       makeSupabase({ id: 'user-1', email: 'test@test.com' }) as never
     )
     vi.mocked(getUsageStatus).mockResolvedValue({
-      used: 3,
-      limit: 3,
-      canGenerate: false,
-      plan: 'free',
+      used: 3, limit: 3, canGenerate: false, plan: 'free',
     })
 
     const res = await POST(makeRequest({ jobDescription: 'test job' }))
@@ -108,21 +109,6 @@ describe('POST /api/generate', () => {
     expect(generateProposal).toHaveBeenCalledWith(
       expect.objectContaining({ tone: 'professional', plan: 'free' })
     )
-    expect(incrementUsage).toHaveBeenCalledWith('user-1')
-  })
-
-  it('increments usage after successful generation', async () => {
-    vi.mocked(createClient).mockResolvedValue(
-      makeSupabase({ id: 'user-99' }) as never
-    )
-    vi.mocked(getUsageStatus).mockResolvedValue({
-      used: 0, limit: 3, canGenerate: true, plan: 'free',
-    })
-    vi.mocked(generateProposal).mockResolvedValue('A great proposal')
-
-    await POST(makeRequest({ jobDescription: 'some job' }))
-
-    expect(incrementUsage).toHaveBeenCalledWith('user-99')
   })
 
   it('does not call Claude when user is unauthenticated', async () => {

@@ -28,6 +28,19 @@ export default async function DashboardPage({
     searchParams,
   ])
 
+  const allProposals = proposals ?? []
+
+  const startOfMonth = new Date()
+  startOfMonth.setDate(1)
+  startOfMonth.setHours(0, 0, 0, 0)
+  const thisMonth = allProposals.filter(p => new Date(p.created_at) >= startOfMonth).length
+
+  const toneCounts = allProposals.reduce((acc, p) => {
+    acc[p.tone] = (acc[p.tone] ?? 0) + 1
+    return acc
+  }, {} as Record<string, number>)
+  const topTone = Object.entries(toneCounts).sort(([, a], [, b]) => b - a)[0]?.[0]
+
   return (
     <div className="min-h-screen bg-background">
       <nav className="border-b px-6 py-3 flex items-center justify-between">
@@ -47,6 +60,29 @@ export default async function DashboardPage({
           <UsageBadge used={usageStatus.used} plan={usageStatus.plan} />
         </div>
 
+        {allProposals.length > 0 && (
+          <div className="grid grid-cols-3 gap-3">
+            <Card>
+              <CardContent className="pt-4 pb-4">
+                <p className="text-2xl font-bold">{allProposals.length}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">Total generated</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="pt-4 pb-4">
+                <p className="text-2xl font-bold">{thisMonth}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">This month</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="pt-4 pb-4">
+                <p className="text-2xl font-bold capitalize">{topTone ?? '—'}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">Favorite tone</p>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
         {params.upgraded && (
           <div className="rounded-md bg-green-50 border border-green-200 p-4 text-sm text-green-800">
             Welcome to Pro! You now have unlimited proposals.
@@ -65,7 +101,7 @@ export default async function DashboardPage({
           </div>
         )}
 
-        {!proposals || proposals.length === 0 ? (
+        {allProposals.length === 0 ? (
           <Card>
             <CardContent className="py-12 text-center text-muted-foreground">
               <p>No proposals yet.</p>
@@ -75,7 +111,7 @@ export default async function DashboardPage({
             </CardContent>
           </Card>
         ) : (
-          <ProposalList proposals={proposals} />
+          <ProposalList proposals={allProposals} />
         )}
       </main>
     </div>

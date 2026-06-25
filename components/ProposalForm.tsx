@@ -8,8 +8,15 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 
+export interface FormInputs {
+  jobDescription: string
+  skills: string
+  tone: 'professional' | 'friendly' | 'bold'
+  length: 'short' | 'medium' | 'long'
+}
+
 interface ProposalFormProps {
-  onResult: (proposal: string) => void
+  onResult: (proposal: string, inputs: FormInputs) => void
   canGenerate: boolean
   onUpgradeClick: () => void
 }
@@ -18,6 +25,7 @@ export function ProposalForm({ onResult, canGenerate, onUpgradeClick }: Proposal
   const [jobDescription, setJobDescription] = useState('')
   const [skills, setSkills] = useState('')
   const [tone, setTone] = useState<'professional' | 'friendly' | 'bold'>('professional')
+  const [length, setLength] = useState<'short' | 'medium' | 'long'>('medium')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -31,7 +39,7 @@ export function ProposalForm({ onResult, canGenerate, onUpgradeClick }: Proposal
     const res = await fetch('/api/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ jobDescription, skills, tone }),
+      body: JSON.stringify({ jobDescription, skills, tone, length }),
     })
 
     const data = await res.json()
@@ -39,10 +47,7 @@ export function ProposalForm({ onResult, canGenerate, onUpgradeClick }: Proposal
     if (!res.ok) {
       setError(data.error ?? 'Something went wrong. Please try again.')
     } else {
-      if (data.saveError) {
-        setError(`DB save failed: ${data.saveError}`)
-      }
-      onResult(data.proposal)
+      onResult(data.proposal, { jobDescription, skills, tone, length })
     }
 
     setLoading(false)
@@ -80,18 +85,34 @@ export function ProposalForm({ onResult, canGenerate, onUpgradeClick }: Proposal
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="tone">Tone</Label>
-            <Select value={tone} onValueChange={(v) => setTone(v as typeof tone)}>
-              <SelectTrigger id="tone">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="professional">Professional — formal but warm</SelectItem>
-                <SelectItem value="friendly">Friendly — conversational</SelectItem>
-                <SelectItem value="bold">Bold — confident and direct</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="tone">Tone</Label>
+              <Select value={tone} onValueChange={(v) => setTone(v as typeof tone)}>
+                <SelectTrigger id="tone">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="professional">Professional</SelectItem>
+                  <SelectItem value="friendly">Friendly</SelectItem>
+                  <SelectItem value="bold">Bold</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="length">Length</Label>
+              <Select value={length} onValueChange={(v) => setLength(v as typeof length)}>
+                <SelectTrigger id="length">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="short">Short (80–120 words)</SelectItem>
+                  <SelectItem value="medium">Medium (150–200 words)</SelectItem>
+                  <SelectItem value="long">Long (250–300 words)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           {error && <p className="text-sm text-destructive">{error}</p>}
