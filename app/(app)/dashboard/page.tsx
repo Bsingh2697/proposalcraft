@@ -5,7 +5,7 @@ import { getUsageStatus } from '@/lib/usage'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { UsageBadge } from '@/components/UsageBadge'
-import { LogoutButton } from '@/components/LogoutButton'
+import { AppNav } from '@/components/AppNav'
 import { ProposalList } from './ProposalList'
 
 export default async function DashboardPage({
@@ -15,7 +15,6 @@ export default async function DashboardPage({
 }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-
   if (!user) redirect('/login')
 
   const [{ data: proposals }, usageStatus, params] = await Promise.all([
@@ -43,16 +42,7 @@ export default async function DashboardPage({
 
   return (
     <div className="min-h-screen bg-background">
-      <nav className="border-b px-6 py-3 flex items-center justify-between">
-        <Link href="/generate" className="font-semibold text-lg">ProposalCraft</Link>
-        <div className="flex items-center gap-4">
-          <Link href="/generate" className="text-sm text-muted-foreground hover:text-foreground">
-            Generate
-          </Link>
-          <span className="text-sm text-muted-foreground">{user.email}</span>
-          <LogoutButton />
-        </div>
-      </nav>
+      <AppNav email={user.email!} active="history" />
 
       <main className="max-w-3xl mx-auto px-4 py-10 space-y-6">
         <div className="flex items-center justify-between">

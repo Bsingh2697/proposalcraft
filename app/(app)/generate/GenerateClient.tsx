@@ -8,11 +8,18 @@ import { ProposalOutput } from '@/components/ProposalOutput'
 import { UsageBadge } from '@/components/UsageBadge'
 import type { UsageStatus } from '@/lib/usage'
 
-interface GenerateClientProps {
-  usageStatus: UsageStatus
+interface SavedProfile {
+  freelancer_name: string | null
+  freelancer_skills: string | null
+  freelancer_bio: string | null
 }
 
-export function GenerateClient({ usageStatus: initialUsageStatus }: GenerateClientProps) {
+interface GenerateClientProps {
+  usageStatus: UsageStatus
+  savedProfile: SavedProfile | null
+}
+
+export function GenerateClient({ usageStatus: initialUsageStatus, savedProfile }: GenerateClientProps) {
   const router = useRouter()
   const [proposal, setProposal] = useState<string | null>(null)
   const [usage, setUsage] = useState(initialUsageStatus)
@@ -96,6 +103,7 @@ export function GenerateClient({ usageStatus: initialUsageStatus }: GenerateClie
           onResult={handleResult}
           canGenerate={usage.canGenerate}
           onUpgradeClick={handleUpgradeClick}
+          savedProfile={savedProfile}
         />
       )}
     </div>

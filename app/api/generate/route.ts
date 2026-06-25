@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json()
-  const { jobDescription, skills, tone, length } = body
+  const { jobDescription, skills, tone, length, platform } = body
 
   if (!jobDescription?.trim()) {
     return NextResponse.json({ error: 'Job description is required' }, { status: 400 })
@@ -33,6 +33,7 @@ export async function POST(req: NextRequest) {
     skills: skills?.trim() ?? '',
     tone: tone ?? 'professional',
     length: length ?? 'medium',
+    platform: platform ?? 'general',
     plan: usageStatus.plan,
   })
 
@@ -42,6 +43,7 @@ export async function POST(req: NextRequest) {
     job_description: jobDescription.trim(),
     skills: skills?.trim() ?? '',
     tone: tone ?? 'professional',
+    platform: platform ?? 'general',
     output: proposal,
   })
   if (insertError) {

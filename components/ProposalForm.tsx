@@ -13,21 +13,34 @@ export interface FormInputs {
   skills: string
   tone: 'professional' | 'friendly' | 'bold'
   length: 'short' | 'medium' | 'long'
+  platform: 'upwork' | 'fiverr' | 'linkedin' | 'general'
+}
+
+interface SavedProfile {
+  freelancer_name: string | null
+  freelancer_skills: string | null
+  freelancer_bio: string | null
 }
 
 interface ProposalFormProps {
   onResult: (proposal: string, inputs: FormInputs) => void
   canGenerate: boolean
   onUpgradeClick: () => void
+  savedProfile?: SavedProfile | null
 }
 
-export function ProposalForm({ onResult, canGenerate, onUpgradeClick }: ProposalFormProps) {
+export function ProposalForm({ onResult, canGenerate, onUpgradeClick, savedProfile }: ProposalFormProps) {
   const [jobDescription, setJobDescription] = useState('')
   const [skills, setSkills] = useState('')
   const [tone, setTone] = useState<'professional' | 'friendly' | 'bold'>('professional')
   const [length, setLength] = useState<'short' | 'medium' | 'long'>('medium')
+  const [platform, setPlatform] = useState<'upwork' | 'fiverr' | 'linkedin' | 'general'>('general')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+
+  function loadProfile() {
+    if (savedProfile?.freelancer_skills) setSkills(savedProfile.freelancer_skills)
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -39,7 +52,7 @@ export function ProposalForm({ onResult, canGenerate, onUpgradeClick }: Proposal
     const res = await fetch('/api/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ jobDescription, skills, tone, length }),
+      body: JSON.stringify({ jobDescription, skills, tone, length, platform }),
     })
 
     const data = await res.json()
@@ -47,7 +60,7 @@ export function ProposalForm({ onResult, canGenerate, onUpgradeClick }: Proposal
     if (!res.ok) {
       setError(data.error ?? 'Something went wrong. Please try again.')
     } else {
-      onResult(data.proposal, { jobDescription, skills, tone, length })
+      onResult(data.proposal, { jobDescription, skills, tone, length, platform })
     }
 
     setLoading(false)
@@ -76,13 +89,39 @@ export function ProposalForm({ onResult, canGenerate, onUpgradeClick }: Proposal
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="skills">Your relevant skills</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="skills">Your relevant skills</Label>
+              {savedProfile?.freelancer_skills && (
+                <button
+                  type="button"
+                  onClick={loadProfile}
+                  className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-2"
+                >
+                  Load profile
+                </button>
+              )}
+            </div>
             <Input
               id="skills"
               placeholder="e.g. React, Node.js, 5 years full-stack experience"
               value={skills}
               onChange={(e) => setSkills(e.target.value)}
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="platform">Platform</Label>
+            <Select value={platform} onValueChange={(v) => setPlatform(v as typeof platform)}>
+              <SelectTrigger id="platform">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="general">General</SelectItem>
+                <SelectItem value="upwork">Upwork</SelectItem>
+                <SelectItem value="fiverr">Fiverr</SelectItem>
+                <SelectItem value="linkedin">LinkedIn</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
