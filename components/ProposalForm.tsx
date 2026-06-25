@@ -39,6 +39,9 @@ export function ProposalForm({ onResult, canGenerate, onUpgradeClick }: Proposal
     if (!res.ok) {
       setError(data.error ?? 'Something went wrong. Please try again.')
     } else {
+      if (data.saveError) {
+        setError(`DB save failed: ${data.saveError}`)
+      }
       onResult(data.proposal)
     }
 

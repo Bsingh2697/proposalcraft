@@ -50,6 +50,7 @@ export async function POST(req: NextRequest) {
   })
   if (insertError) {
     console.error('Failed to save proposal:', insertError)
+    return NextResponse.json({ proposal, saveError: insertError.message })
   }
 
   revalidatePath('/generate')
