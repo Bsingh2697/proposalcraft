@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { generateProposal } from '@/lib/claude'
 import { getUsageStatus } from '@/lib/usage'
 
@@ -38,8 +39,9 @@ export async function POST(req: NextRequest) {
     plan: usageStatus.plan,
   })
 
-  // 5. Save to database
-  const { error: insertError } = await supabase.from('proposals').insert({
+  // 5. Save to database (admin client bypasses RLS so insert never fails silently)
+  const admin = createAdminClient()
+  const { error: insertError } = await admin.from('proposals').insert({
     user_id: user.id,
     job_description: jobDescription.trim(),
     skills: skills?.trim() ?? '',
