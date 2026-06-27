@@ -22,6 +22,7 @@ export default async function DashboardPage({
       .from('proposals')
       .select('id, job_description, tone, output, created_at')
       .eq('user_id', user.id)
+      .is('deleted_at', null)
       .order('created_at', { ascending: false }),
     getUsageStatus(user.id),
     searchParams,

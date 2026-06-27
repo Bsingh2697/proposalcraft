@@ -16,7 +16,7 @@ export async function DELETE(
   const admin = createAdminClient()
   const { error } = await admin
     .from('proposals')
-    .delete()
+    .update({ deleted_at: new Date().toISOString() })
     .eq('id', id)
     .eq('user_id', user.id)
 
