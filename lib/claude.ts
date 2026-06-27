@@ -41,6 +41,8 @@ export interface GenerateProposalParams {
   tone: 'professional' | 'friendly' | 'bold'
   length: 'short' | 'medium' | 'long'
   platform: 'upwork' | 'fiverr' | 'linkedin' | 'general'
+  name: string
+  bio: string
   plan: 'free' | 'pro'
 }
 
@@ -50,6 +52,8 @@ export async function generateProposal({
   tone,
   length,
   platform,
+  name,
+  bio,
 }: GenerateProposalParams): Promise<string> {
   const { guide, maxTokens } = LENGTH_CONFIG[length]
   const platformHint = PLATFORM_CONTEXT[platform] ?? ''
@@ -64,9 +68,11 @@ export async function generateProposal({
         content: [
           `Job description:\n${jobDescription}`,
           `My skills: ${skills}`,
+          bio ? `About me: ${bio}` : '',
           `Tone: ${tone}`,
           `Target length: ${guide}`,
           platformHint,
+          name ? `Sign off the proposal with the name "${name}".` : '',
         ].filter(Boolean).join('\n'),
       },
     ],

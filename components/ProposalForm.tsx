@@ -31,16 +31,12 @@ interface ProposalFormProps {
 
 export function ProposalForm({ onResult, canGenerate, onUpgradeClick, savedProfile }: ProposalFormProps) {
   const [jobDescription, setJobDescription] = useState('')
-  const [skills, setSkills] = useState('')
+  const [skills, setSkills] = useState(savedProfile?.freelancer_skills ?? '')
   const [tone, setTone] = useState<'professional' | 'friendly' | 'bold'>('professional')
   const [length, setLength] = useState<'short' | 'medium' | 'long'>('medium')
   const [platform, setPlatform] = useState<'upwork' | 'fiverr' | 'linkedin' | 'general'>('general')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-
-  function loadProfile() {
-    if (savedProfile?.freelancer_skills) setSkills(savedProfile.freelancer_skills)
-  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -52,7 +48,11 @@ export function ProposalForm({ onResult, canGenerate, onUpgradeClick, savedProfi
     const res = await fetch('/api/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ jobDescription, skills, tone, length, platform }),
+      body: JSON.stringify({
+        jobDescription, skills, tone, length, platform,
+        name: savedProfile?.freelancer_name,
+        bio: savedProfile?.freelancer_bio,
+      }),
     })
 
     const data = await res.json()
@@ -89,18 +89,7 @@ export function ProposalForm({ onResult, canGenerate, onUpgradeClick, savedProfi
           </div>
 
           <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="skills">Your relevant skills</Label>
-              {savedProfile?.freelancer_skills && (
-                <button
-                  type="button"
-                  onClick={loadProfile}
-                  className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-2"
-                >
-                  Load profile
-                </button>
-              )}
-            </div>
+            <Label htmlFor="skills">Your relevant skills</Label>
             <Input
               id="skills"
               placeholder="e.g. React, Node.js, 5 years full-stack experience"

@@ -29,6 +29,8 @@ describe('generateProposal', () => {
       plan: 'free',
       length: 'medium',
       platform: 'general',
+      name: '',
+      bio: '',
     })
 
     expect(result).toBe('Dear hiring manager, I noticed your need for...')
@@ -59,6 +61,8 @@ describe('generateProposal', () => {
         plan: 'free',
         length: 'medium',
         platform: 'general',
+        name: '',
+        bio: '',
       })
     ).rejects.toThrow('No response from Groq')
   })
@@ -75,6 +79,8 @@ describe('generateProposal', () => {
       plan: 'pro',
       length: 'medium',
       platform: 'general',
+      name: '',
+      bio: '',
     })
 
     const call = mockCreate.mock.calls[0][0]
