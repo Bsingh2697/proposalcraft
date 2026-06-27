@@ -145,10 +145,10 @@ export function ProposalForm({ onResult, canGenerate, onUpgradeClick, savedProfi
                 <SelectTrigger id="length">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="short">Short (~100 words)</SelectItem>
-                  <SelectItem value="medium">Medium (~175 words)</SelectItem>
-                  <SelectItem value="long">Long (~275 words)</SelectItem>
+                <SelectContent align="end">
+                  <SelectItem value="short">Short</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="long">Long</SelectItem>
                 </SelectContent>
               </Select>
             </div>
